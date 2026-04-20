@@ -278,6 +278,7 @@
             border: none;
             cursor: none;
             padding: 5px;
+            z-index: 1001;
         }
 
         .mobile-menu-btn span {
@@ -286,6 +287,91 @@
             background: var(--accent-gradient);
             transition: all 0.3s ease;
             box-shadow: 0 0 5px var(--electric-blue);
+        }
+
+        .mobile-menu-btn.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .mobile-menu-btn.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .mobile-menu-btn.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+
+        /* Mobile Navigation Dropdown */
+        .mobile-nav {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(10, 15, 30, 0.98);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            z-index: 999;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            padding: 2rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s var(--ease-out-expo);
+        }
+
+        .mobile-nav.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .mobile-nav a {
+            font-family: var(--font-display);
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--white);
+            text-decoration: none;
+            padding: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .mobile-nav a::after {
+            content: '';
+            position: absolute;
+            bottom: 0.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 2px;
+            background: var(--accent-gradient);
+            transition: width 0.3s var(--ease-out-expo);
+        }
+
+        .mobile-nav a:hover {
+            color: var(--electric-blue);
+        }
+
+        .mobile-nav a:hover::after {
+            width: 60%;
+        }
+
+        .mobile-nav .nav-cta-mobile {
+            background: var(--accent-gradient);
+            color: var(--navy-deep);
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1rem;
+            margin-top: 1rem;
+        }
+
+        .mobile-nav .nav-cta-mobile:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 0 40px var(--accent-glow);
         }
 
         /* Reveal Animation Base */
@@ -1612,8 +1698,13 @@
                 display: flex;
             }
 
+            .mobile-nav {
+                display: flex;
+            }
+
             nav .logo {
-                font-size: 14px;
+                font-size: 13px;
+                white-space: nowrap;
             }
 
             nav .logo img {
@@ -1622,8 +1713,8 @@
             }
 
             .nav-cta {
-                font-size: 12px;
-                padding: 8px 14px;
+                font-size: 11px;
+                padding: 6px 12px;
             }
 
             body {
@@ -1691,12 +1782,21 @@
             <li><a href="#faq">FAQ</a></li>
         </ul>
         <a href="#contact" class="nav-cta">Get in Touch</a>
-        <button class="mobile-menu-btn" aria-label="Menu">
+        <button class="mobile-menu-btn" aria-label="Menu" id="mobileMenuBtn">
             <span></span>
             <span></span>
             <span></span>
         </button>
     </nav>
+
+    <!-- Mobile Navigation Dropdown -->
+    <div class="mobile-nav" id="mobileNav">
+        <a href="#about" class="mobile-nav-link">About</a>
+        <a href="#services" class="mobile-nav-link">Services</a>
+        <a href="#projects" class="mobile-nav-link">Projects</a>
+        <a href="#faq" class="mobile-nav-link">FAQ</a>
+        <a href="#contact" class="mobile-nav-link nav-cta-mobile">Get in Touch</a>
+    </div>
 
     <!-- Hero Section -->
     <section class="hero" id="hero">
@@ -2188,11 +2288,42 @@
             });
         });
 
-        // Mobile menu toggle (simplified)
-        const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
-        mobileMenuBtn.addEventListener('click', () => {
-            // Simple alert for mobile menu - in production, you'd expand a mobile menu
-            alert('Mobile menu - Navigation links are accessible by scrolling');
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileNav = document.getElementById('mobileNav');
+        const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+
+        function toggleMobileMenu() {
+            mobileMenuBtn.classList.toggle('active');
+            mobileNav.classList.toggle('active');
+            document.body.style.overflow = mobileNav.classList.contains('active') ? 'hidden' : '';
+        }
+
+        function closeMobileMenu() {
+            mobileMenuBtn.classList.remove('active');
+            mobileNav.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+
+        // Close menu when a nav link is clicked
+        mobileNavLinks.forEach(link => {
+            link.addEventListener('click', closeMobileMenu);
+        });
+
+        // Close menu when clicking outside
+        mobileNav.addEventListener('click', (e) => {
+            if (e.target === mobileNav) {
+                closeMobileMenu();
+            }
+        });
+
+        // Close menu on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && mobileNav.classList.contains('active')) {
+                closeMobileMenu();
+            }
         });
 
         // Particle Animation
